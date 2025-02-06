@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html lang="en-US">
-
-<head>
+ <head>
     <meta charset="utf-8">
     <title>Earthquake List</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-
-    <!-- Including the Mapbox GL CSS file -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css" rel="stylesheet">
-
-    <!-- Including the Mapbox GL JS file -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js"></script>
-
     <style>
-        /* CSS styles for the layout and components */
         body {
             margin: 0;
             padding: 0;
@@ -46,8 +39,7 @@
             border: 1px solid #ddd;
         }
 
-        th,
-        td {
+        th, td {
             text-align: left;
             padding: 16px;
         }
@@ -56,15 +48,14 @@
             background-color: #f2f2f2;
         }
     </style>
-</head>
-
-<body>
+ </head>
+ <body>
     <main id="container">
         <div id="side-panel">
-
+ 
             <h2>Earthquake List</h2>
             <button>Sort by Magnitude</button>
-
+ 
             <table>
                 <tr>
                     <th>id</th>
@@ -72,17 +63,13 @@
                     <th>timestamp</th>
                 </tr>
             </table>
-
+ 
         </div>
         <div id="map"></div>
-
     </main>
     <script>
-        // Define the Mapbox access token
-        mapboxgl.accessToken =
-            'pk.eyJ1IjoiZ252ZWxleiIsImEiOiJjbTZzdGZzcWMwYjJzMm5wd2xmYnRyeHU0In0.1qw-r2WipRZcibgMfyoLJw';
-
-        // Create the map object
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZ252ZWxleiIsImEiOiJjbTZzdGZzcWMwYjJzMm5wd2xmYnRyeHU0In0.1qw-r2WipRZcibgMfyoLJw';
+        
         let map = new mapboxgl.Map({
             container: 'map', // container ID
             style: 'mapbox://styles/mapbox/satellite-v9', // style URL
@@ -90,14 +77,50 @@
             center: [138, 38] // starting center
         });
 
-
         async function geojsonFetch() {
-
             let response, earthquakes, japan, table;
             response = await fetch('assets/earthquakes.geojson');
             earthquakes = await response.json();
             response = await fetch('assets/japan.json');
             japan = await response.json();
+
+            //load data to the map as new layers and table on the side.
+            map.on('load', function loadingData() {
+
+            map.addSource('earthquakes', {
+                type: 'geojson',
+                data: earthquakes
+            });
+
+            map.addLayer({
+                'id': 'earthquakes-layer',
+                'type': 'circle',
+                'source': 'earthquakes',
+                'paint': {
+                    'circle-radius': 8,
+                    'circle-stroke-width': 2,
+                    'circle-color': 'red',
+                    'circle-stroke-color': 'white'
+                }
+            });
+
+
+            map.addSource('japan', {
+                type: 'geojson',
+                data: japan
+            });
+
+            map.addLayer({
+                'id': 'japan-layer',
+                'type': 'fill',
+                'source': 'japan',
+                'paint': {
+                    'fill-color': '#0080ff', // blue color fill
+                    'fill-opacity': 0.5
+                }
+            });
+
+            });
 
             table = document.getElementsByTagName("table")[0];
             let row, cell1, cell2, cell3;
@@ -113,46 +136,7 @@
                     "en-US");
             }
 
-
-            //load data to the map as new layers and table on the side.
-            map.on('load', function loadingData() {
-
-                map.addSource('earthquakes', {
-                    type: 'geojson',
-                    data: earthquakes
-                });
-
-                map.addLayer({
-                    'id': 'earthquakes-layer',
-                    'type': 'circle',
-                    'source': 'earthquakes',
-                    'paint': {
-                        'circle-radius': 8,
-                        'circle-stroke-width': 2,
-                        'circle-color': 'red',
-                        'circle-stroke-color': 'white'
-                    }
-                });
-
-
-                map.addSource('japan', {
-                    type: 'geojson',
-                    data: japan
-                });
-
-                map.addLayer({
-                    'id': 'japan-layer',
-                    'type': 'fill',
-                    'source': 'japan',
-                    'paint': {
-                        'fill-color': '#0080ff', // blue color fill
-                        'fill-opacity': 0.5
-                    }
-                });
-
-            });
-
-        }
+        };
 
         geojsonFetch();
 
@@ -195,8 +179,7 @@
                 }
             }
         }
+        
     </script>
-
-</body>
-
-</html>
+ </body> 
+<html>  
